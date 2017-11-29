@@ -1,0 +1,12 @@
+http://ahoj.sk/hue?121
+http://aba.zzz
+http://sub.domain.cz/?/?/ads/?SAD
+
+http://localhost.com
+mailto::jozko@gmail.com
+ftp://sub.domain.cz
+ftp://jozko@sub.domain.cz/path/to/dir
+
+htp://hello.world
+mailto::jozko@gmail.com:heslo
+ftp://jozko@sub.domain.cz/path/to/dir
