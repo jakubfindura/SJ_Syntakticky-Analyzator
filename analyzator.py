@@ -17,8 +17,9 @@ def getStateFromTab(state,stateFirst):
 	else: 
 		return [table[x][y]]
 
-def prehladavaj(state,string,original):
-		
+def prehladavaj(state,wholeString,index):
+	string = wholeString[index:]
+	
 	# prehladavame firsty pre dany stav
 	for stateFirst in first[state]:
 		
@@ -27,20 +28,21 @@ def prehladavaj(state,string,original):
 		
 			# substitucia abecedy	
 			if( stateFirst == abeceda ):
-				string = "a" + string[1:]
+				string = wholeString[:index] + "a" + string[1:]
 				stateFirst = "a"
 			
 			# substitucia cislic
 			if( stateFirst == cislice ):
-				string = "0" + string[1:]
+				string = wholeString[:index] + "0" + string[1:]
 				stateFirst = "0"
 			
 			# z tabulky najdem nasledujuci stav (INT)
 			nextStatesNum = getStateFromTab(state,stateFirst)
 
 			for nextStateNum in nextStatesNum:
+				newIndex = index
 				newString = string
-				ret = False
+				ret = [False,index]
 				
 				# zistim nazov nasledujjuceho stavu
 				state = getState(nextStateNum)
@@ -52,34 +54,37 @@ def prehladavaj(state,string,original):
 				if( termy[0] == stateFirst ):
 					termy = termy[1:]
 					newString = string[len(stateFirst):]
+					newIndex = index + len(stateFirst)
 
 				# ak nie su ziadne termy, sme na konci prehladavania
 				if not termy: 
-					return newString
+					return [True,newIndex]
 
 				# prehladavame hlbsie kazdy term
 				for term in termy:
 					# ak je term neterminal ideme dalej
 					if( term in no_terms ):
 						# prehladavame dalsi stav so zvysnym retazcom
-						x = prehladavaj(term,newString,original)
+						x = prehladavaj(term,wholeString,newIndex)
 
 						# ak prehladavanie uspesne, vratime vyssie orezany retazec
-						if( x ):
-							newString = x
-							ret = x
+						if( x[0] ):
+							newString = wholeString[x[1]:]
+							newIndex = x[1]
+							ret = [True,x[1]]
 
 						# ak sa zasekneme vratime False
 						else:
-							ret = False
+							ret = [False,newIndex]
 							break
 
 					# ak je term terminal a retazec nim zacina, vymazeme ho z retazca
 					else:
 						if( newString.startswith(term) ):
 							newString = newString[len(term):]
+							newIndex = newIndex + len(term)
 						else:
-							ret = False
+							ret = [False,newIndex]
 							break
 
 			return ret
@@ -91,10 +96,10 @@ def prehladavaj(state,string,original):
 			for stateFollow in follow[state]:
 				if( string.startswith(stateFollow) ):
 					# vratime zvysny retazec
-					return string #[len(stateFollow):]
+					return [True,index] # + len(stateFollow) #string #[len(stateFollow):]
 		
 		# ak pravidlo nema epsilon a retazec je iny ako follow -> slovo nepatri do jazyka
-		return False
+		return [False,index]
 
 
 if( len(sys.argv) < 2 ):
@@ -109,7 +114,12 @@ with open(filename) as f:
 slova = [x.strip() for x in content]
 
 for slovo in slova:
-	if(	prehladavaj(startState,slovo+"$",slovo) == '$' ):
+	# print("Length: {}, Ret: {}".format(len(slovo)+1,prehladavaj(startState,slovo+"$",0)))
+	ret = prehladavaj(startState,slovo+"$",0)
+	if(	ret[0] and ret[1] == len(slovo) ):
 		print("SUCCES: Slovo '{}' patri do jazyka".format(slovo))
 	else:
-		print("ERROR: Slovo '{}' nepatri do jazyka".format(slovo))
+		if( ret[1] > -1 ):
+			print("ERROR NEAR [{}] > '{}'".format(ret[1],slovo[ret[1]:][:10]))
+		else:
+			print("ERROR: Slovo '{}' nepatri do jazyka".format(slovo))
