@@ -17,7 +17,7 @@ def getStateFromTab(state,stateFirst):
 	else: 
 		return [table[x][y]]
 
-def prehladavaj(state,wholeString,index):
+def prehladavaj(state,wholeString,index,level):
 	string = wholeString[index:]
 	
 	# prehladavame firsty pre dany stav
@@ -40,8 +40,9 @@ def prehladavaj(state,wholeString,index):
 			nextStatesNum = getStateFromTab(state,stateFirst)
 
 			for nextStateNum in nextStatesNum:
+				print(" -- Pouzite pravidlo: [{}]: {}{}".format(nextStateNum,level*" ",pomocne_pravidla[nextStateNum-1]))
+
 				newIndex = index
-				newString = string
 				ret = [False,index]
 				
 				# zistim nazov nasledujjuceho stavu
@@ -53,7 +54,7 @@ def prehladavaj(state,wholeString,index):
 				# ak je prvy term zaroven firstom, vymazeme ho a osekneme retazec
 				if( termy[0] == stateFirst ):
 					termy = termy[1:]
-					newString = string[len(stateFirst):]
+					string = string[len(stateFirst):]
 					newIndex = index + len(stateFirst)
 
 				# ak nie su ziadne termy, sme na konci prehladavania
@@ -65,11 +66,11 @@ def prehladavaj(state,wholeString,index):
 					# ak je term neterminal ideme dalej
 					if( term in no_terms ):
 						# prehladavame dalsi stav so zvysnym retazcom
-						x = prehladavaj(term,wholeString,newIndex)
+						x = prehladavaj(term,wholeString,newIndex,level+1)
 
 						# ak prehladavanie uspesne, vratime vyssie orezany retazec
 						if( x[0] ):
-							newString = wholeString[x[1]:]
+							string = wholeString[x[1]:]
 							newIndex = x[1]
 							ret = [True,x[1]]
 
@@ -80,8 +81,8 @@ def prehladavaj(state,wholeString,index):
 
 					# ak je term terminal a retazec nim zacina, vymazeme ho z retazca
 					else:
-						if( newString.startswith(term) ):
-							newString = newString[len(term):]
+						if( string.startswith(term) ):
+							string = string[len(term):]
 							newIndex = newIndex + len(term)
 						else:
 							ret = [False,newIndex]
@@ -117,7 +118,7 @@ for slovo in slova:
 	print("-----------------------------------------------")
 	print("Nacitane Slovo ", slovo)
 	# print("Length: {}, Ret: {}".format(len(slovo)+1,prehladavaj(startState,slovo+"$",0)))
-	ret = prehladavaj(startState,slovo+"$",0)
+	ret = prehladavaj(startState,slovo+"$",0,0)
 	if(	ret[0] and ret[1] == len(slovo) ):
 		print("SUCCESS: Slovo '{}' patri do jazyka".format(slovo))
 	else:
