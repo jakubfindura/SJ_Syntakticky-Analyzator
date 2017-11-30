@@ -114,12 +114,15 @@ with open(filename) as f:
 slova = [x.strip() for x in content]
 
 for slovo in slova:
+	print("-----------------------------------------------")
+	print("Nacitane Slovo ", slovo)
 	# print("Length: {}, Ret: {}".format(len(slovo)+1,prehladavaj(startState,slovo+"$",0)))
 	ret = prehladavaj(startState,slovo+"$",0)
 	if(	ret[0] and ret[1] == len(slovo) ):
-		print("SUCCES: Slovo '{}' patri do jazyka".format(slovo))
+		print("SUCCESS: Slovo '{}' patri do jazyka".format(slovo))
 	else:
 		if( ret[1] > -1 ):
 			print("ERROR NEAR [{}] > '{}'".format(ret[1],slovo[ret[1]:][:10]))
+			print("ERROR: Slovo '{}' nepatri do jazyka".format(slovo))
 		else:
 			print("ERROR: Slovo '{}' nepatri do jazyka".format(slovo))
